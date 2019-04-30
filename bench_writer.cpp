@@ -14,6 +14,7 @@
 #include <thread>
 #include <chrono>
 #include <regex>
+#include <sys/stat.h>
 
 /**
  * System's includes
