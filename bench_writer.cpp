@@ -393,9 +393,9 @@ int main( int argc, char** argv ) {
    fstat(checkfd, &statbuf);
    close(checkfd);
    unlink(std::string(basetestfilename + "-bschek").c_str());
-   optimal_bs = statbuf.st_blksize;
+   int optimal_bs = statbuf.st_blksize;
 
-   logget::get()->log("Optimal filesystem blocksize: " + optimal_bs);	
+   logget::get()->log("Optimal filesystem blocksize: " + std::to_string(optimal_bs) );	
    logger::get()->log("Block size: " + utils::prettyPrintSize(bslen) + ", loops: " + std::to_string(filesize/bslen) );
    while( it< iterations ) {
      logger::get()->log("Iteration #" + std::to_string(it+1) + " of " + std::to_string(iterations));
