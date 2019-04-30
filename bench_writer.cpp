@@ -248,7 +248,7 @@ int main( int argc, char** argv ) {
     return 1;
   }
   } catch(std::regex_error& reerr) {
-    std::cerr << "Regex error: " << reerr.what() << std::endl;	  
+    //std::cerr << "Regex error: " << reerr.what() << std::endl;	  
   }
     
     
@@ -401,6 +401,10 @@ int main( int argc, char** argv ) {
 
    logger::get()->log("Optimal filesystem blocksize: " + std::to_string(optimal_bs) );	
    logger::get()->log("Block size: " + utils::prettyPrintSize(bslen) + ", loops: " + std::to_string(filesize/bslen) );
+   if (osync)
+	logger::get()->log("Opening file with O_SYNC (cache flush after each pwrite call)");
+   if (flush)
+	logger::get()->log("FSYNC will be taken into account in the speed calculation");
    while( it< iterations ) {
      logger::get()->log("Iteration #" + std::to_string(it+1) + " of " + std::to_string(iterations));
      ++it;
