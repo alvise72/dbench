@@ -387,7 +387,7 @@ int main( int argc, char** argv ) {
    else
      logger::get()->log("Single file size: " + utils::prettyPrintSize( filesize ) + ", aggregated file size: " + utils::prettyPrintSize(filesize*num_of_threads)) ;
    
-   logger::get()->log("Stating file " + std::string(basetestfilename + "-bschek");
+   logger::get()->log("Stating file " + std::string(basetestfilename + "-bschek") );
    int checkfd = open(std::string(basetestfilename + "-bschek").c_str(), O_CREAT, S_IRUSR|S_IWUSR);
    struct stat statbuf;
    fstat(checkfd, &statbuf);
