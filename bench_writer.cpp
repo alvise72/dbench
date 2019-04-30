@@ -386,7 +386,17 @@ int main( int argc, char** argv ) {
      logger::get()->log("File size: " + utils::prettyPrintSize( filesize ) ) ;
    else
      logger::get()->log("Single file size: " + utils::prettyPrintSize( filesize ) + ", aggregated file size: " + utils::prettyPrintSize(filesize*num_of_threads)) ;
-   logger::get()->log("Block size:" + utils::prettyPrintSize(bslen) + ", loops: "+filesize/bslen);
+   
+   logger::get()->log("Stating file " + std::string(basetestfilename + "-bschek");
+   int checkfd = open(std::string(basetestfilename + "-bschek").c_str(), O_CREAT, S_IRUSR|S_IWUSR);
+   struct stat statbuf;
+   fstat(checkfd, &statbuf);
+   close(checkfd);
+   unlink(std::string(basetestfilename + "-bschek").c_str());
+   optimal_bs = statbuf.st_blksize;
+
+   logget::get()->log("Optimal filesystem blocksize: " + optimal_bs);	
+   logger::get()->log("Block size: " + utils::prettyPrintSize(bslen) + ", loops: " + std::to_string(filesize/bslen) );
    while( it< iterations ) {
      logger::get()->log("Iteration #" + std::to_string(it+1) + " of " + std::to_string(iterations));
      ++it;
