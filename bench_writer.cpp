@@ -240,10 +240,10 @@ int main( int argc, char** argv ) {
   }
     
     
-  std::regex bslen_regex("^([0-9]+)([kmgt])$", std::regex_constants::ECMAScript | std::regex_constants::icase);
+  std::regex bslen_regex("^([0-9]+)([kmgt]?)$", std::regex_constants::ECMAScript | std::regex_constants::icase);
   std::smatch match;
   if (!std::regex_search(bslen_s, match, bslen_regex)) {
-    std::cerr << "Specified bslen (--block-size|-b) " << bslen << " is not correct. Please see help." << std::endl;
+    std::cerr << "Specified bslen (--block-size|-b) " << bslen_s << " is not correct. Please see help." << std::endl;
     return 1;
   }
     
