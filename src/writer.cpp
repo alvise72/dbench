@@ -76,8 +76,10 @@ void writer::doit( void ) {
       return;
     }
     unsigned long long after_micros = utils::get_microseconds( );
-    if(m_block_delay)
+    if(m_block_delay) {
       usleep(m_block_delay);
+      m_microseconds += m_block_delay;
+    }  
     m_microseconds += (after_micros - before_micros);
   }
   if(m_do_flush) {
