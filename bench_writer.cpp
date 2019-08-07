@@ -48,7 +48,7 @@ namespace po = boost::program_options;
 #define RANGEui(a, b) unsigned int a=0; a<b; a++
 #define RANGEi(a, b) int a=0; a<b; a++
 
-void manglefd( int, bool );
+void manglefd( int, bool, bool );
 
 unsigned long long bslen    = ONEMEGA;
 unsigned long long segcount = ONEKILO;
@@ -413,32 +413,32 @@ int main( int argc, char** argv ) {
      if(threads_on_same_file) {
        std::string filename;
        if(!existing)
-	 filename = basetestfilename + "-" + std::to_string( getpid() ) + "-" + std::to_string(it);
+	       filename = basetestfilename + "-" + std::to_string( getpid() ) + "-" + std::to_string(it);
        else
-	 filename = basetestfilename;
+	       filename = basetestfilename;
        if(!absolute_filename.empty()) {
-	 filename = absolute_filename;
+	       filename = absolute_filename;
        }
        if(!existing)
-	 unlink(filename.c_str()); // let's remove it at the second and subsequent iterations
+	       unlink(filename.c_str()); // let's remove it at the second and subsequent iterations
        logger::get()->log("Opening file [" + filename + "]");
        int fd = open(filename.c_str(), flags, S_IRUSR|S_IWUSR);
        logger::get()->log("Success: file [" + filename + "] -> descriptor [" + std::to_string(fd) + "]");
        if(fd<0) {
-	 logger::get()->log("Error opening file [" + filename + "] for writing:" + strerror(errno));
-	 return 1;
+	       logger::get()->log("Error opening file [" + filename + "] for writing:" + strerror(errno));
+	       return 1;
        }
        if(!existing)
-	 to_unlink.push_back( filename );
+	       to_unlink.push_back( filename );
        to_close.push_back( fd );
-       manglefd(fd, use_direct);
+       manglefd(fd, use_direct, write_randomly);
        int chunks_per_thread = segcount/num_of_threads;
        for( RANGEui(j, num_of_threads)) {
-	 std::vector<off_t> chunks( chunks_per_thread );
-	 std::iota( begin(chunks), end(chunks), j*chunks_per_thread );
-	 if( write_randomly )
-	   utils::shuffle_vector( chunks );
-	 WP.add_writer ( fd, chunks, block_delay, filename );
+	       std::vector<off_t> chunks( chunks_per_thread );
+	       std::iota( begin(chunks), end(chunks), j*chunks_per_thread );
+	       if( write_randomly )
+	         utils::shuffle_vector( chunks );
+	       WP.add_writer ( fd, chunks, block_delay, filename );
        }
       
     } else {
@@ -466,7 +466,7 @@ int main( int argc, char** argv ) {
 	if(!existing)
 	  to_unlink.push_back( filename );
 	to_close.push_back(fd);
-	manglefd(fd, use_direct);
+	manglefd(fd, use_direct, write_randomly);
 	if( write_randomly )
 	  utils::shuffle_vector( offsets );
       	WP.add_writer ( fd, offsets, block_delay, filename );
@@ -572,11 +572,19 @@ int main( int argc, char** argv ) {
 }
 
 //------------------------------------------------------------------------------------------------------------------
-void manglefd( int fd, bool use_direct ) {
+void manglefd( int fd, bool use_direct, bool random ) {
 #ifdef  __APPLE__
     if(use_direct) {
       fcntl(fd, F_NOCACHE, 1);
       logger::get()->log("Will not use OS's buffer (F_NOCACHE) - Apple specific.");
     } else fcntl(fd, F_NOCACHE, 0);
+#endif
+
+#ifndef __APPLE__
+  if(random) {
+    posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM)
+  } else {
+    posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL)
+  }
 #endif
 }
