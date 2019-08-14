@@ -95,7 +95,7 @@ void writer::doit( void ) {
     m_microseconds += (after_micros - before_micros);
     printProgress( ((float)( ((float)j)/((float)m_offsets.size()) )));
   }
-  printf("\n");
+  //printf("\n");
   if(m_do_flush) {
       unsigned long long before_micros = utils::get_microseconds( );
       fsync(m_fd);

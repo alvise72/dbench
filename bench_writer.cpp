@@ -476,6 +476,7 @@ int main( int argc, char** argv ) {
     WP.join();
     
     if(!WP.get_status()) {
+      printf("\n");
       logger::get()->err("Error: " + WP.get_error_message( ));
       return 1;
     }
@@ -483,6 +484,7 @@ int main( int argc, char** argv ) {
     WP.compute_perf();
     time_info.push_back( WP.get_perf() );
     for(auto f : to_close) {
+      printf("\n");
       logger::get()->log("Closing file descriptor [" + std::to_string(f) + "]");
       close(f);
     }
