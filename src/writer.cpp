@@ -11,6 +11,18 @@
 #include "logger.h"
 #include "utils.h"
 
+#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+#define PBWIDTH 60
+
+void printProgress (double percentage)
+{
+    int val = (int) (percentage * 100);
+    int lpad = (int) (percentage * PBWIDTH);
+    int rpad = PBWIDTH - lpad;
+    printf ("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
+    fflush (stdout);
+}
+
 /*
  *
  *
@@ -81,7 +93,9 @@ void writer::doit( void ) {
       m_microseconds += m_block_delay;
     }  
     m_microseconds += (after_micros - before_micros);
+    printProgress( ((float)( ((float)j)/((float)m_offsets.size()) )));
   }
+  printf("\n");
   if(m_do_flush) {
       unsigned long long before_micros = utils::get_microseconds( );
       fsync(m_fd);

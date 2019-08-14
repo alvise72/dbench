@@ -582,9 +582,9 @@ void manglefd( int fd, bool use_direct, bool random ) {
 
 #ifndef __APPLE__
   if(random) {
-    posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM)
+    posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
   } else {
-    posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL)
+    posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
   }
 #endif
 }
