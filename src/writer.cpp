@@ -1,4 +1,4 @@
-#include <sys/types.h>
+﻿#include <sys/types.h>
 #include <unistd.h>
 #include <cstdio>
 #include <string>
@@ -11,15 +11,25 @@
 #include "logger.h"
 #include "utils.h"
 
-#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
-#define PBWIDTH 60
+#define PBSTR  "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+#define PBSTR2 "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+#define CLR    "                                                            "
 
+#define PBWIDTH 60
+#define PBWIDTH2 50
+
+/*
+ *
+ *
+ * Write data to a file and get timing and avg write rate
+ *
+ */
 void printProgress (double percentage)
 {
     int val = (int) (percentage * 100);
-    int lpad = (int) (percentage * PBWIDTH);
-    int rpad = PBWIDTH - lpad;
-    printf ("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
+    int lpad = (int) (percentage * PBWIDTH2);
+    int rpad = PBWIDTH2 - lpad;
+    printf ("\r%3d%% [%.*s%*s]", val, lpad, PBSTR2, rpad, "");
     fflush (stdout);
 }
 
@@ -92,10 +102,13 @@ void writer::doit( void ) {
       usleep(m_block_delay);
       m_microseconds += m_block_delay;
     }  
-    m_microseconds += (after_micros - before_micros);
+    unsigned long long int iteration_delay = (after_micros - before_micros);
+    m_microseconds += iteration_delay;
     printProgress( ((float)( ((float)j)/((float)m_offsets.size()) )));
+    //printf("%.2f", 1000000.0*((double)(m_offsets.size()*m_buffer_len)/((double)m_microseconds)) );
+    //std::cout <<" "<< utils::prettyPrintSize( 1000000 * m_buffer_len / iteration_delay )<< "/s"<<"         ";
   }
-  //printf("\n");
+
   if(m_do_flush) {
       unsigned long long before_micros = utils::get_microseconds( );
       fsync(m_fd);
@@ -103,8 +116,10 @@ void writer::doit( void ) {
       m_microseconds += (after_micros - before_micros);
   }
 
-  m_rate = 1000000.0*((double)(m_offsets.size()*m_buffer_len)/((double)m_microseconds));
+  
 
+  m_rate = 1000000.0*((double)(m_offsets.size()*m_buffer_len)/((double)m_microseconds));
+  std::cout <<"\r"<<CLR<<"          \r";
   return;
 
 };
