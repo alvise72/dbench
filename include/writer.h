@@ -23,7 +23,7 @@ class writer {
   std::string         m_filename;
   int                 m_forced_rate;
 
-  static std::mutex   s_mutex;
+// static std::mutex   s_mutex;
 
   writer( ) {}
   writer( const writer& ) {}
