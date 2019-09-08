@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 #include <numeric>
 
 class writer {
@@ -21,6 +22,8 @@ class writer {
   int                 m_fd;
   std::string         m_filename;
   int                 m_forced_rate;
+
+  static std::mutex   s_mutex;
 
   writer( ) {}
   writer( const writer& ) {}

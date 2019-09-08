@@ -18,6 +18,8 @@
 #define PBWIDTH 60
 #define PBWIDTH2 50
 
+std::mutex writer::s_mutex; //(std::mutex());
+
 /*
  *
  *
@@ -92,11 +94,18 @@ void writer::doit( void ) {
   
   for(unsigned j=0; j<m_offsets.size(); ++j) {
     unsigned long long before_micros = utils::get_microseconds( );
-    if(pwrite(m_fd, m_buffer_to_write, m_buffer_len, offset_native_array[j] ) < m_buffer_len) {      
+    s_mutex.lock( );
+    if(lseek(m_fd, offset_native_array[j], SEEK_SET) < 0) {
       m_error_message = strerror(errno);
       m_status=false;
       return;
     }
+    if(write(m_fd, m_buffer_to_write, m_buffer_len/*, offset_native_array[j]*/ ) < m_buffer_len) {      
+      m_error_message = strerror(errno);
+      m_status=false;
+      return;
+    }
+    s_mutex.unlock( );
     unsigned long long after_micros = utils::get_microseconds( );
     if(m_block_delay) {
       usleep(m_block_delay);
