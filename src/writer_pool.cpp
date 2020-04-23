@@ -14,9 +14,9 @@ writer_pool::writer_pool(int _pool_size, void* _buffer, off_t _buflen, bool _flu
 }
 
 //--------------------------------------------------------------------------------
-void writer_pool::add_writer( int fd, const std::vector<off_t>& _offsets, const long long block_delay, const std::string& fname ) {
+void writer_pool::add_writer( int fd, const std::vector<off_t>& _offsets, const long long block_delay, const std::string& fname, const int iodepth ) {
 
-  writers.push_back( new writer( fd, buffer, buflen, flush, _offsets, block_delay, fname ) );
+  writers.push_back( new writer( fd, buffer, buflen, flush, _offsets, block_delay, fname, iodepth ) );
   
 }
 

@@ -18,8 +18,6 @@
 #define PBWIDTH 60
 #define PBWIDTH2 50
 
-//std::mutex writer::s_mutex; //(std::mutex());
-
 /*
  *
  *
@@ -41,7 +39,7 @@ void printProgress (double percentage)
  * Create a writer instance that is ready to write data to a file
  *
  */
-writer::writer( int fd, void* data_buffer, off_t buflen, bool flush, const std::vector<off_t>& offsets, const long long block_delay, const std::string& fname )
+writer::writer( int fd, void* data_buffer, off_t buflen, bool flush, const std::vector<off_t>& offsets, const long long block_delay, const std::string& fname, const int iodepth )
   : m_buffer_len(buflen),
     m_do_flush( flush ),
     m_rate( 0 ),
@@ -50,7 +48,8 @@ writer::writer( int fd, void* data_buffer, off_t buflen, bool flush, const std::
     m_status(true),
     m_block_delay(block_delay),
     m_fd( fd ),
-    m_filename( fname )
+    m_filename( fname ),
+    m_iodepth( iodepth )
 {
   m_buffer_to_write = malloc(buflen);
   memcpy( m_buffer_to_write, data_buffer, buflen );
@@ -91,24 +90,21 @@ void writer::doit( void ) {
     k++;
   }
   
+  int pwrite_counter = 0;
   
-  for(unsigned j=0; j<m_offsets.size(); ++j) {
+  for(unsigned j=0; j < m_offsets.size(); ++j) {
     unsigned long long before_micros = utils::get_microseconds( );
-    /*s_mutex.lock( );
-    if(lseek(m_fd, offset_native_array[j], SEEK_SET) < 0) {
-      m_error_message = strerror(errno);
-      m_status=false;
-      return;
-    } 
-    if( write(m_fd, m_buffer_to_write, m_buffer_len ) < m_buffer_len) { */
     if(pwrite(m_fd, m_buffer_to_write, m_buffer_len, offset_native_array[j] ) < m_buffer_len) {
-    
       m_error_message = strerror(errno);
       m_status=false;
       return;
     }
-    //s_mutex.unlock( );
+    if(pwrite_counter >= m_iodepth) {
+      fsync( m_fd );
+      pwrite_counter = 0;
+    }
     unsigned long long after_micros = utils::get_microseconds( );
+    pwrite_counter++;
     if(m_block_delay) {
       usleep(m_block_delay);
       m_microseconds += m_block_delay;
@@ -116,8 +112,6 @@ void writer::doit( void ) {
     unsigned long long int iteration_delay = (after_micros - before_micros);
     m_microseconds += iteration_delay;
     printProgress( ((float)( ((float)j)/((float)m_offsets.size()) )));
-    //printf("%.2f", 1000000.0*((double)(m_offsets.size()*m_buffer_len)/((double)m_microseconds)) );
-    //std::cout <<" "<< utils::prettyPrintSize( 1000000 * m_buffer_len / iteration_delay )<< "/s"<<"         ";
   }
 
   if(m_do_flush) {

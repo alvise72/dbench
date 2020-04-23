@@ -63,26 +63,28 @@ void killhandler(int sig)
 //------------------------------------------------------------------------------------------------------------------
 int main( int argc, char** argv ) {
     
-  char*          	   bs                   = 0;
-  bool           	   use_direct           = false;
-  bool           	   flush                = false;
-  bool           	   keep                 = false;
+  char*          	         bs                   = 0;
+  bool           	         use_direct           = false;
+  bool           	         flush                = false;
+  bool           	         keep                 = false;
   std::list<perf>          time_info;
-  long long      	   iterations           = 1;
-  bool           	   write_randomly       = false;
+  long long      	         iterations           = 1;
+  bool           	         write_randomly       = false;
   std::string         	   bslen_s              = std::to_string( ONEMEGA );// "1048576"
-  bool           	   osync                = false;
-  unsigned int   	   num_of_threads       = 1;
-  bool           	   threads_on_same_file = false;
-  std::string         	   filesize_s      	= std::to_string( ONEGIGA );//"1073741824";
+  bool           	         osync                = false;
+  unsigned int   	         num_of_threads       = 1;
+  bool           	         threads_on_same_file = false;
+  std::string         	   filesize_s      	    = std::to_string( ONEGIGA );//"1073741824";
   std::vector<std::string> to_unlink;
   std::vector<int>         to_close;
-  std::string              basetestfilename	= "./testfile";
+  std::string              basetestfilename	    = "./testfile";
   std::string              absolute_filename    = "";
-  int 			   iteration_delay      = 100;
-  long long   		   block_delay          = 0;
+  int 			               iteration_delay      = 100;
+  long long   		         block_delay          = 0;
   bool                     quiet                = false;
   bool                     existing             = false;
+  int                      iodepth              = 1000000;
+
   
   /*
    *
@@ -110,6 +112,7 @@ int main( int argc, char** argv ) {
     ("filesize,D", po::value<std::string>(&filesize_s), "")
     ("existing-file,e", "")
     ("absolute-filename,a", po::value<std::string>(&absolute_filename), "")
+    ("iodepth,p", po::value<int>(&iodepth), "")
     ("remove-testfile,k","");
 
   po::positional_options_description p;
@@ -438,7 +441,7 @@ int main( int argc, char** argv ) {
 	       std::iota( begin(chunks), end(chunks), j*chunks_per_thread );
 	       if( write_randomly )
 	         utils::shuffle_vector( chunks );
-	       WP.add_writer ( fd, chunks, block_delay, filename );
+	       WP.add_writer ( fd, chunks, block_delay, filename, iodepth );
        }
       
     } else {
@@ -469,7 +472,7 @@ int main( int argc, char** argv ) {
 	manglefd(fd, use_direct, write_randomly);
 	if( write_randomly )
 	  utils::shuffle_vector( offsets );
-      	WP.add_writer ( fd, offsets, block_delay, filename );
+      	WP.add_writer ( fd, offsets, block_delay, filename, iodepth );
       }
     }
     WP.start();

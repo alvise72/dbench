@@ -33,7 +33,7 @@ class writer_pool {
   void join( void );
   void start( void );
   void collect_perf(  );
-  void add_writer( int, const std::vector<off_t>&, const long long, const std::string& );
+  void add_writer( int, const std::vector<off_t>&, const long long, const std::string&, const int );
   bool get_status( );
   std::string get_error_message( void ) { return error_message; }
   void compute_perf( void );

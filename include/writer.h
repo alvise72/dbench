@@ -22,15 +22,14 @@ class writer {
   int                 m_fd;
   std::string         m_filename;
   int                 m_forced_rate;
-
-// static std::mutex   s_mutex;
+  int                 m_iodepth;
 
   writer( ) {}
   writer( const writer& ) {}
   
  public:
   
-  writer( int, void*, off_t, bool, const std::vector<off_t>&, const long long, const std::string& fname );
+  writer( int, void*, off_t, bool, const std::vector<off_t>&, const long long, const std::string& fname, const int iodepth );
   
   virtual ~writer( );
   
