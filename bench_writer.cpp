@@ -39,9 +39,9 @@
 namespace po = boost::program_options;
 
 #define ONEKILO 1024
-#define ONEMEGA ONEKILO*ONEKILO
-#define ONEGIGA ONEKILO*ONEMEGA
-#define ONETERA ONEKILO*ONEGIGA
+#define ONEMEGA 1048576
+#define ONEGIGA 1073741824
+#define ONETERA 1099511627776
 
 #define RANGEull(a, b) unsigned long long a=0; a<b; a++
 #define RANGEll(a, b) long long a=0; a<b; a++
@@ -97,7 +97,7 @@ int main( int argc, char** argv ) {
     ("help,h", "")
     ("block-size,b", po::value<std::string>(&bslen_s), "" )
     ("block-delay,B", po::value<long long>(&block_delay),"")
-    ("count,c", po::value<unsigned long long>(&segcount),"")
+//    ("count,c", po::value<unsigned long long>(&segcount),"")
     ("flush,F","")
     ("quiet,Q","")
     ("use-direct,d","")
@@ -155,7 +155,7 @@ int main( int argc, char** argv ) {
       return 0;
   }
 
-  existing             = vm.count("existing-file") != 0;
+  existing = vm.count("existing-file") != 0;
   
   char *hname = getenv("HOSTNAME");
   char *cname = getenv("COMPUTERNAME");
@@ -202,39 +202,18 @@ int main( int argc, char** argv ) {
     return 1;
   }
 
-  if(filesize_s.back()=='k' || filesize_s.back()=='K') {
+  std::map<int, unsigned long long> UNIT;
+  UNIT['k'] = ONEKILO; UNIT['m'] = ONEMEGA; UNIT['g'] = ONEGIGA; UNIT['t'] = ONETERA;
+
+  if(tolower(filesize_s.back())=='k' || tolower(filesize_s.back())=='m' || tolower(filesize_s.back())=='g' || tolower(filesize_s.back())=='t' ) {
     std::string tmp = filesize_s.substr(0, filesize_s.length()-1);
     if(!utils::is_digits(tmp)) {
       std::cerr << "Specified filesize \"" << tmp << "\" is not a number "<< std::endl;
       return 1;
     }
-    filesize = stoll(filesize_s.substr(0, filesize_s.length()-1)) * ONEKILO;
+    filesize = stoll(filesize_s.substr(0, filesize_s.length()-1)) * UNIT[tolower(filesize_s.back())];
   }
-  if(filesize_s.back()=='m' || filesize_s.back()=='M') {
-    std::string tmp = filesize_s.substr(0, filesize_s.length()-1);
-    if(!utils::is_digits(tmp)) {
-      std::cerr << "Specified filesize \"" << tmp << "\" is not a number "<< std::endl;
-      return 1;
-    }
-    
-    filesize = stoll(filesize_s.substr(0, filesize_s.length()-1)) * ONEMEGA;
-  }
-  if(filesize_s.back()=='g' || filesize_s.back()=='G') {
-    std::string tmp = filesize_s.substr(0, filesize_s.length()-1);
-    if(!utils::is_digits(tmp)) {
-      std::cerr << "Specified filesize \"" << tmp << "\" is not a number "<< std::endl;
-      return 1;
-    }
-    filesize = stoll(filesize_s.substr(0, filesize_s.length()-1)) * ONEGIGA;
-  }
-  if(filesize_s.back()=='t' || filesize_s.back()=='T') {
-    std::string tmp = filesize_s.substr(0, filesize_s.length()-1);
-    if(!utils::is_digits(tmp)) {
-      std::cerr << "Specified filesize \"" << tmp << "\" is not a number "<< std::endl;
-      return 1;
-    }
-    filesize = stoll(filesize_s.substr(0, filesize_s.length()-1)) * ONETERA;
-  }
+
   if(isdigit(filesize_s.back())) {
     if(!utils::is_digits(filesize_s)) {
       std::cerr << "Specified filesize \"" << filesize_s << "\" is not a number "<< std::endl;
@@ -242,8 +221,7 @@ int main( int argc, char** argv ) {
     }
     filesize = stoll(filesize_s);
   }
-    
-    
+
   try {std::regex bslen_regex("^([0-9]+)([kmgt]?)$", std::regex_constants::ECMAScript | std::regex_constants::icase);
   std::smatch match;
   if (!std::regex_search(bslen_s, match, bslen_regex)) {
@@ -253,40 +231,16 @@ int main( int argc, char** argv ) {
   } catch(std::regex_error& reerr) {
     //std::cerr << "Regex error: " << reerr.what() << std::endl;	  
   }
-    
-    
-  if( bslen_s.back() == 'k' || bslen_s.back() == 'K' ) {
+
+  if( tolower(bslen_s.back()) == 'k' || tolower(bslen_s.back()) == 'm' || tolower(bslen_s.back()) == 'g' || tolower(bslen_s.back()) == 't') {
     std::string tmp = bslen_s.substr(0, bslen_s.length()-1);
     if(!utils::is_digits(tmp)) {
       std::cerr << "Specified blocksize \"" << tmp << "\" is not a number "<< std::endl;
       return 1;
     }
-    bslen = stoll(tmp) * ONEKILO;
+    bslen = stoll(tmp) * UNIT[tolower(bslen_s.back())];
   }
-  if( bslen_s.back() == 'm' || bslen_s.back() == 'M' ){
-    std::string tmp = bslen_s.substr(0, bslen_s.length()-1);
-    if(!utils::is_digits(tmp)) {
-      std::cerr << "Specified blocksize \"" << tmp << "\" is not a number "<< std::endl;
-      return 1;
-    }
-    bslen = stoll(tmp) * ONEMEGA;
-  }
-  if( bslen_s.back() == 'g' || bslen_s.back() == 'G' ) {
-    std::string tmp = bslen_s.substr(0, bslen_s.length()-1);
-    if(!utils::is_digits(tmp)) {
-      std::cerr << "Specified blocksize \"" << tmp << "\" is not a number "<< std::endl;
-      return 1;
-    }
-    bslen = stoll(tmp) * ONEGIGA;
-  }
-  if( bslen_s.back() == 't' || bslen_s.back() == 'T' ) {
-    std::string tmp = bslen_s.substr(0, bslen_s.length()-1);
-    if(!utils::is_digits(tmp)) {
-      std::cerr << "Specified blocksize \"" << tmp << "\" is not a number "<< std::endl;
-      return 1;
-    }
-    bslen = stoll(bslen_s.substr(0, bslen_s.length()-1)) * ONETERA;
-  }
+
   if( isdigit(bslen_s.back()) ) {
     if(!utils::is_digits(bslen_s)) {
       std::cerr << "Specified blocksize \"" << bslen_s << "\" is not a number "<< std::endl;
@@ -394,20 +348,20 @@ int main( int argc, char** argv ) {
    else
      logger::get()->log("Single file size: " + utils::prettyPrintSize( filesize ) + ", aggregated file size: " + utils::prettyPrintSize(filesize*num_of_threads)) ;
    
-   logger::get()->log("Stating file " + std::string(basetestfilename + "-bschek") );
-   int checkfd = open(std::string(basetestfilename + "-bschek").c_str(), O_CREAT, S_IRUSR|S_IWUSR);
+   //logger::get()->log("Stating file " + std::string(basetestfilename + "-bscheck") );
+   int checkfd = open(std::string(basetestfilename + "-bscheck").c_str(), O_CREAT, S_IRUSR|S_IWUSR);
    struct stat statbuf;
    fstat(checkfd, &statbuf);
    close(checkfd);
-   unlink(std::string(basetestfilename + "-bschek").c_str());
+   unlink(std::string(basetestfilename + "-bscheck").c_str());
    int optimal_bs = statbuf.st_blksize;
 
    logger::get()->log("Optimal filesystem blocksize: " + std::to_string(optimal_bs) );	
    logger::get()->log("Block size: " + utils::prettyPrintSize(bslen) + ", loops: " + std::to_string(filesize/bslen) );
    if (osync)
-	logger::get()->log("Opening file with O_SYNC (cache flush after each pwrite call)");
+	   logger::get()->log("Opening file with O_SYNC (cache flush after each pwrite call)");
    if (flush)
-	logger::get()->log("FSYNC will be taken into account in the speed calculation");
+	   logger::get()->log("FSYNC will be taken into account in the speed calculation");
    while( it< iterations ) {
      logger::get()->log("Iteration #" + std::to_string(it+1) + " of " + std::to_string(iterations));
      ++it;
