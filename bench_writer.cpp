@@ -138,7 +138,7 @@ int main( int argc, char** argv ) {
       std::cout << "--block-delay|B #\t\tSpecifies the number of microseconds to sleep between a syscall pwrite and the next one (usefull to artificially slow down the writing speed, incompatible with the options -S and -n used together)"<<std::endl;
       std::cout << "--filesize|D #\t\t\tSpecifies the file's size. Can use k|K|m|M|g|G suffixes"<<std::endl;
       std::cout << "--existing-file|e\t\tIf want to write to an existing file use this flag" << std::endl;
-      std::cout << "--count|c #\t\t\tSpecifies the number of blocks to be written"<<std::endl;
+      //std::cout << "--count|c #\t\t\tSpecifies the number of blocks to be written"<<std::endl;
       std::cout << "--flush|F\t\t\tSpecifies if take into accout the fsync() syscall in the time calculation for the throughput"<<std::endl;
       std::cout << "--use-direct|d\t\t\tSpecifies if open the file with O_DIRECT flag"<<std::endl;
       std::cout << "--test-filename|f <path>\tSpecifes path and filename to be written for the test"<<std::endl;
@@ -151,6 +151,7 @@ int main( int argc, char** argv ) {
       std::cout << "--num-threads|n #\t\tSpawn a number of thread, each one writing its own file" << std::endl;
       std::cout << "--same-file|S\t\t\tMultiple threads write on the same file" << std::endl;
       std::cout << "--remove-testfile|k\t\tRemove the testfile"<<std::endl;
+      std::cout << "--iodepth|p #\t\tflush on disk every # write syscalls"<<std::endl;
       std::cout << "--quiet|Q\t\tQuiet log mode" << std::endl<<std::endl;
       return 0;
   }
