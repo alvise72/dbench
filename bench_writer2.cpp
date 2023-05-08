@@ -86,17 +86,30 @@ int main( int argc, char** argv ) {
     exit(1);
 
   }
-  int count = fsize / bsize;
+  unsigned long long count = fsize / bsize;
   void *buf = (void*)malloc(bsize);
   std::cout << "Filling buf " << bsize << " bytes" << std::endl;
+  std::cout << "Filesize will be " << fsize << " bytes" << std::endl;
   memset((void*)buf, ' ', bsize);
   std::cout << "Looping write call " << count << " times on FD " << fd << std::endl;
   unsigned long long before_micros = 0, after_micros = 0, write_delay = 0;
-  for( int j = 0; j< count; j++) {
+  for( unsigned long long j = 0; j< count; j++) {
     before_micros = utils::get_microseconds( );
     write(fd, buf, bsize);
     after_micros = utils::get_microseconds( );
-    std::cout<< "Write delay " << (after_micros-before_micros) << " microseconds" << std::endl; 
+    std::cout<< "Write " << bsize << " bytes in " << (after_micros-before_micros) << " microseconds" << std::endl;
+    if(argv[4]!=0 && atoi(argv[4]) == 1) {
+      before_micros = utils::get_microseconds( );
+      fsync(fd);
+      after_micros = utils::get_microseconds( );
+      std::cout<< "fsync delay " << (after_micros-before_micros) << " microseconds" << std::endl;
+    }
+  }
+  if(argv[4]!=0 && atoi(argv[4]) == 2) {
+      before_micros = utils::get_microseconds( );
+      fsync(fd);
+      after_micros = utils::get_microseconds( );
+      std::cout<< "Final fsync delay " << (after_micros-before_micros) << " microseconds" << std::endl;
   }
   close(fd);
 }
