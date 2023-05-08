@@ -97,19 +97,19 @@ int main( int argc, char** argv ) {
     before_micros = utils::get_microseconds( );
     write(fd, buf, bsize);
     after_micros = utils::get_microseconds( );
-    std::cout<< "Write " << bsize << " bytes in " << (after_micros-before_micros) << " microseconds" << std::endl;
+    std::cerr<< "Write " << bsize << " bytes in " << (after_micros-before_micros) << " microseconds" << std::endl;
     if(argv[4]!=0 && atoi(argv[4]) == 1) {
       before_micros = utils::get_microseconds( );
       fsync(fd);
       after_micros = utils::get_microseconds( );
-      std::cout<< "fsync delay " << (after_micros-before_micros) << " microseconds" << std::endl;
+      std::cerr<< "fsync delay " << (after_micros-before_micros) << " microseconds" << std::endl;
     }
   }
   if(argv[4]!=0 && atoi(argv[4]) == 2) {
       before_micros = utils::get_microseconds( );
       fsync(fd);
       after_micros = utils::get_microseconds( );
-      std::cout<< "Final fsync delay " << (after_micros-before_micros) << " microseconds" << std::endl;
+      std::cerr<< "Final fsync delay " << (after_micros-before_micros) << " microseconds" << std::endl;
   }
   close(fd);
 }
