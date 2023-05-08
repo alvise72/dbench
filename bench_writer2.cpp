@@ -8,7 +8,7 @@
 //#include <cerrno>
 #include <string.h>
 //#include <string>
-//#include <vector>
+#include <vector>
 #include <iostream>
 //#include <list>
 //#include <numeric>
@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <signal.h>
+#include <algorithm>
+#include <random>
 
 /**
  * BOOST includes
@@ -96,11 +98,24 @@ int main( int argc, char** argv ) {
   memset((void*)buf, ' ', bsize);
   std::cout << "Looping write call " << count << " times on FD " << fd << std::endl;
   unsigned long long before_micros = 0, after_micros = 0, write_delay = 0;
-  for( unsigned long long j = 0; j< count; j++) {
+  std::vector<off_t> offsets;
+  for(off_t j = 0; j < count; j++) {
+
+    offsets.push_back( j*bsize );
+
+  }
+  std::default_random_engine engine(std::random_device{}());
+  std::shuffle(offsets.begin(), offsets.end(), engine);
+
+  
+
+  //for( unsigned long long j = 0; j< count; j++) {
+  for (std::size_t i = 0; i < offsets.size(); ++i) {  
     before_micros = utils::get_microseconds( );
+    lseek(fd, (off_t)offsets[i], SEEK_SET);
     write(fd, buf, bsize);
     after_micros = utils::get_microseconds( );
-    std::cout<< "Write " << bsize << " bytes in " << (after_micros-before_micros) << " microseconds" << std::endl;
+    std::cout<< "RandomLseek + Write " << bsize << " bytes in " << (after_micros-before_micros) << " microseconds" << std::endl;
     if(argv[4]!=0 && atoi(argv[4]) == 1) {
       before_micros = utils::get_microseconds( );
       fsync(fd);
