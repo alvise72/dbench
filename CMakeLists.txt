@@ -10,11 +10,13 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB SOURCES "src/*.cpp")
 add_library(dbenchlib STATIC ${SOURCES})
 add_executable(dbench bench_writer.cpp)
+add_executable(dbench2 bench_writer2.cpp)
 target_link_libraries(dbench
   dbenchlib
   ${Boost_LIBRARIES}
   pthread
 )
+
 install(TARGETS dbench DESTINATION /usr/local/bin)
 if(RERUN)
 message(WARNING "Please re-run cmake once again...")
