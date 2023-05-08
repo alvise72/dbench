@@ -7,8 +7,8 @@
 //#include <cstring>
 //#include <cerrno>
 #include <string.h>
-#include <string>
-#include <vector>
+//#include <string>
+//#include <vector>
 #include <iostream>
 //#include <list>
 //#include <numeric>
