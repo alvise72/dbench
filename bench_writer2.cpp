@@ -71,10 +71,13 @@ int main( int argc, char** argv ) {
     
   std::string filename(argv[1]);
 
-  unsigned long fsize = ONEGIGA * atol(argv[2]);
+  //unsigned long fsize = ONEGIGA * atol(argv[2]);
 
-  unsigned long bsize = ONEKILO * atol(argv[3]);
-
+  //unsigned long bsize = ONEKILO * atol(argv[3]);
+  
+  unsigned long fsize = atol(argv[2]);
+  unsigned long bsize = atol(argv[3]);
+  
   std::cout << "Unlinking pre-existing file " << argv[1] << std::endl;
   unlink(argv[1]);
 
